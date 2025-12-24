@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Rootlayout from "@/pages/layout.tsx";
 import "./index.css";
 import App from "./App.tsx";
@@ -15,10 +15,8 @@ createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route element={<Rootlayout />}>
           <Route path="/" element={<App />} />
-          {/* AUTH */}
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
-          {/* My Page */}
           <Route path="/my-page" element={<MyPage />} />
           <Route path="/my-page/edit" element={<MyPageEdit />} />
         </Route>

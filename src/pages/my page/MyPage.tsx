@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { UseAuthStore } from "@/pages/store/auth";
+import { UseProfileStore } from "@/pages/store/ProfileStore";
 import { User, Map, Users, CreditCard, Package } from "lucide-react";
 import { ProfileCard } from "./ProfileCard";
+import { useNavigate } from "react-router";
 
 function MyPage() {
-  const user = UseAuthStore((state) => state.user);
+  const navigate = useNavigate();
+  const authUser = UseAuthStore((state) => state.user);
+  const profile = UseProfileStore((state) => state.profile);
+
   const [menu, setMenu] = useState("intro");
 
   return (
     <div className="w-full flex justify-center">
       <div className="w-full max-w-[1200px] flex gap-10 px-8 py-10">
-        {/* 왼쪽 사이드 */}
         <aside className="w-[260px]">
           <h2 className="text-xl font-bold mb-6">프로필</h2>
 
@@ -21,6 +25,7 @@ function MyPage() {
           >
             자기소개
           </MenuItem>
+
           <MenuItem
             icon={Map}
             active={menu === "travel"}
@@ -28,6 +33,7 @@ function MyPage() {
           >
             이전 여행
           </MenuItem>
+
           <MenuItem
             icon={Users}
             active={menu === "relation"}
@@ -35,6 +41,7 @@ function MyPage() {
           >
             인연
           </MenuItem>
+
           <MenuItem
             icon={CreditCard}
             active={menu === "payment"}
@@ -43,8 +50,8 @@ function MyPage() {
             결제수단 관리
           </MenuItem>
 
-          {/* ⭐ 가이드일 때만 */}
-          {user?.role === "guide" && (
+          {/* ✅ 가이드 여부는 profiles.is_guide */}
+          {(profile?.is_guide || authUser?.isGuide) && (
             <MenuItem
               icon={Package}
               active={menu === "guide"}
@@ -55,23 +62,29 @@ function MyPage() {
           )}
         </aside>
 
-        {/* 오른쪽 내용 */}
         <main className="flex-1">
-          {/* 제목 + 수정 버튼 */}
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-2xl font-bold">자기소개</h2>
-            <button
-              className="text-sm px-3 py-1 rounded-full border hover:bg-gray-50"
-              onClick={() => {
-                // 나중에 edit 페이지로 이동
-                window.location.href = "/my-page/edit";
-              }}
-            >
-              수정
-            </button>
-          </div>
+          {menu === "intro" && (
+            <>
+              <div className="flex items-center gap-2 mb-4">
+                <h2 className="text-2xl font-bold">자기소개</h2>
+                <button
+                  className="text-sm px-3 py-1 rounded-full border hover:bg-gray-50"
+                  onClick={() => navigate("/my-page/edit")}
+                >
+                  수정
+                </button>
+              </div>
 
-          <ProfileCard user={user} />
+              {/* ✅ props 넘기지 않음 */}
+              <ProfileCard />
+            </>
+          )}
+
+          {menu !== "intro" && (
+            <div className="text-sm text-muted-foreground">
+              아직 연결되지 않은 메뉴입니다. (다음 단계에서 붙일게요)
+            </div>
+          )}
         </main>
       </div>
     </div>

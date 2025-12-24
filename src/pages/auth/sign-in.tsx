@@ -126,14 +126,6 @@ function SignIn() {
           <CardTitle className="text-lg">로그인</CardTitle>
           <CardDescription>로그인을 위한 정보를 입력해주세요.</CardDescription>
           <div className="flex flex-col gap-4 py-6">
-            <Button type="submit" className="w-full bg-[#00BF18]">
-              <img src="/icons/naverlogo.jpg" alt="@NAVER" className="w-7" />
-              네이버 로그인
-            </Button>
-            <Button type="submit" className="w-full bg-[#FFE617]">
-              <img src="/icons/kakaologo.jpg" alt="@KAKAO" className="w-7" />
-              카카오 로그인
-            </Button>
             <Button
               type="button"
               variant="outline"

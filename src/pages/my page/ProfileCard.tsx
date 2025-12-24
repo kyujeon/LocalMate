@@ -1,5 +1,9 @@
 import { ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
 import { UseAuthStore } from "@/pages/store/auth";
 import { UseProfileStore } from "../store/ProfileStore";
 
@@ -33,75 +37,88 @@ export function ProfileCard() {
 
   if (!user || !profile) return null;
 
-  return (
-    <div className="bg-white rounded-2xl shadow-sm px-8 py-6 max-w-[640px]">
-      <div className="flex items-start gap-6">
-        {/* 아바타 */}
-        <div className="relative">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src={profile.avatar_url ?? user.avatarUrl} />
-            <AvatarFallback className="text-xl">
-              {user.email?.[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+  const title = profile.display_name ?? user.email ?? "User";
 
-          {/* 인증 배지 */}
-          <div className="absolute -bottom-1 -right-1 bg-pink-500 rounded-full p-1">
-            <ShieldCheck size={14} className="text-white" />
+  return (
+    <Card className="w-full max-w-[720px]">
+      <CardHeader className="flex flex-row items-start justify-between">
+        <div className="flex items-start gap-4">
+          <div className="relative">
+            <Avatar className="w-16 h-16">
+              <AvatarImage src={profile.avatar_url ?? user.avatarUrl} />
+              <AvatarFallback className="text-lg">
+                {title[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute -bottom-1 -right-1 bg-pink-500 rounded-full p-1">
+              <ShieldCheck size={14} className="text-white" />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="text-lg font-semibold">{title}</p>
+              {profile.is_guide && <Badge variant="secondary">Guide</Badge>}
+            </div>
+
+            {profile.home_location && (
+              <p className="text-sm text-muted-foreground">
+                {profile.home_location}
+              </p>
+            )}
           </div>
         </div>
+      </CardHeader>
 
-        {/* 이름 + 정보 */}
-        <div className="flex-1">
-          <p className="text-lg font-semibold">{profile.name ?? user.email}</p>
+      <CardContent className="space-y-4">
+        {profile.bio && (
+          <p className="text-sm leading-relaxed text-gray-700">{profile.bio}</p>
+        )}
 
-          <p className="text-sm text-muted-foreground">서울, 한국</p>
+        {(profile.job || profile.school || profile.birth_date) && (
+          <>
+            <Separator />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+              {profile.job && (
+                <div>
+                  <p className="text-xs text-muted-foreground">직업</p>
+                  <p className="font-medium">{profile.job}</p>
+                </div>
+              )}
+              {profile.school && (
+                <div>
+                  <p className="text-xs text-muted-foreground">학교</p>
+                  <p className="font-medium">{profile.school}</p>
+                </div>
+              )}
+              {profile.birth_date && (
+                <div>
+                  <p className="text-xs text-muted-foreground">생년월일</p>
+                  <p className="font-medium">{profile.birth_date}</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
-          {/* ✅ 자기소개 */}
-          {profile.bio && (
-            <p className="mt-3 text-sm text-gray-700 leading-relaxed">
-              {profile.bio}
-            </p>
-          )}
-
-          {/* 통계 (임시) */}
-          <div className="flex gap-6 mt-4">
-            <Stat label="여행" value="0회" />
-            <Stat label="후기" value="0개" />
-            <Stat label="가입 기간" value="0년" />
-          </div>
-
-          {/* ✅ 관심사 */}
-          {profile.interests && profile.interests.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4">
+        {profile.interests?.length > 0 && (
+          <>
+            <Separator />
+            <div className="flex flex-wrap gap-2">
               {profile.interests.map((item) => {
                 const Icon = INTEREST_ICON_MAP[item];
-
                 return (
-                  <span
-                    key={item}
-                    className="flex items-center gap-1 px-3 py-1 text-xs rounded-full bg-gray-100"
-                  >
+                  <Badge key={item} variant="secondary" className="gap-1">
                     {Icon && <Icon size={14} />}
                     {item}
-                  </span>
+                  </Badge>
                 );
               })}
             </div>
-          )}
-        </div>
-      </div>
-    </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="font-semibold text-sm">{value}</p>
-    </div>
-  );
-}
-
 export default ProfileCard;

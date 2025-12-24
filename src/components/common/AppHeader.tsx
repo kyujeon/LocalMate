@@ -21,12 +21,12 @@ import { NavLink, useNavigate } from "react-router";
 import { Switch } from "../ui/switch";
 import { useState } from "react";
 import { UseAuthStore } from "@/pages/store/auth";
+import { UseProfileStore } from "@/pages/store/ProfileStore";
 
 export function LocationMap() {
-  const [coords, setCoords] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
 
   const getLocation = () => {
     navigator.geolocation.getCurrentPosition(
@@ -61,26 +61,33 @@ export function LocationMap() {
 function AppHeader() {
   const user = UseAuthStore((state) => state.user);
   const reset = UseAuthStore((state) => state.reset);
+  const profile = UseProfileStore((state) => state.profile);
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await reset();
+    UseProfileStore.getState().resetProfile();
+    navigate("/", { replace: true });
+  };
+
+  const title = profile?.display_name ?? user?.email ?? "User";
 
   return (
     <header className="fixed z-20 w-full min-h-12 h-12 flex items-center justify-center p-5 bg-white shadow-sm">
       <div className="w-full h-full max-w-[1328px] flex items-center justify-between">
         <div className="flex items-center gap-4">
           <NavLink to={"/"}>
-            <img
-              src="/logo/logo.png"
-              alt="@LOGO"
-              className="flex items-center  w-36"
-            />
+            <img src="/logo/logo.png" alt="@LOGO" className="w-36" />
           </NavLink>
         </div>
-        <div className="flex items-center gap-4 ">
+
+        <div className="flex items-center gap-4">
           <div className="flex items-center space-x-2">
             <Switch id="guide-mode" />
             <Label htmlFor="guide-mode">Guide Mode</Label>
           </div>
-          <Separator orientation="vertical" className="h-3!" />
+
+          <Separator orientation="vertical" className="h-4" />
 
           <Dialog>
             <DialogTrigger asChild>
@@ -89,7 +96,7 @@ function AppHeader() {
 
             <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
-                <DialogTitle>현재 위치를 알려주세요! </DialogTitle>
+                <DialogTitle>현재 위치를 알려주세요!</DialogTitle>
                 <DialogDescription>
                   주변 가이드를 추천하기 위해 위치가 필요합니다.😎
                 </DialogDescription>
@@ -98,18 +105,20 @@ function AppHeader() {
               <LocationMap />
             </DialogContent>
           </Dialog>
-          <Separator orientation="vertical" className="h-3!" />
+
+          <Separator orientation="vertical" className="h-4" />
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2">
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src={user.avatarUrl} />
+                    <AvatarImage src={profile?.avatar_url ?? user.avatarUrl} />
                     <AvatarFallback>
-                      {user.email?.[0].toUpperCase()}
+                      {(title?.[0] ?? "U").toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm">{user.name ?? user.email}</span>
+                  <span className="text-sm">{title}</span>
                 </button>
               </DropdownMenuTrigger>
 
@@ -117,7 +126,10 @@ function AppHeader() {
                 <DropdownMenuItem onClick={() => navigate("/my-page")}>
                   My Page
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-500" onClick={reset}>
+                <DropdownMenuItem
+                  className="text-red-500"
+                  onClick={handleLogout}
+                >
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
